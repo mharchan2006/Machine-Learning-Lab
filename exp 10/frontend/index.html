@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Melanoma Skin Lesion Classification using Neural Network</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="app-container">
+        
+        <!-- Header Section -->
+        <header class="main-header">
+            <div class="header-left">
+                <div class="logo-box">
+                    <span class="logo-icon">🔬</span>
+                </div>
+                <div class="header-text">
+                    <h1>Melanoma Skin Lesion Classification using Neural Network</h1>
+                    <p class="subtitle">Automated Dermoscopic Lesion Analysis &bull; Benign Nevus vs. Malignant Melanoma</p>
+                </div>
+            </div>
+            <div class="header-right">
+                <div class="badge-pill">MLP NEURAL NETWORK</div>
+            </div>
+        </header>
+
+        <!-- Step Progress Tracker Bar -->
+        <nav class="pipeline-tracker">
+            <div class="step-nodes">
+                <div class="step-node active" id="tracker-step-1">
+                    <span class="node-check">&#10003;</span>
+                    <span class="node-label">Load Image</span>
+                </div>
+                <div class="node-line"></div>
+                <div class="step-node" id="tracker-step-2">
+                    <span class="node-check">&#10003;</span>
+                    <span class="node-label">Preprocessing</span>
+                </div>
+                <div class="node-line"></div>
+                <div class="step-node" id="tracker-step-3">
+                    <span class="node-check">&#10003;</span>
+                    <span class="node-label">Feature Extraction</span>
+                </div>
+                <div class="node-line"></div>
+                <div class="step-node" id="tracker-step-4">
+                    <span class="node-check">&#10003;</span>
+                    <span class="node-label">Model Training</span>
+                </div>
+                <div class="node-line"></div>
+                <div class="step-node" id="tracker-step-5">
+                    <span class="node-check">&#10003;</span>
+                    <span class="node-label">Classification</span>
+                </div>
+                <div class="node-line"></div>
+                <div class="step-node" id="tracker-step-6">
+                    <span class="node-check">&#10003;</span>
+                    <span class="node-label">Evaluation</span>
+                </div>
+                <div class="node-line"></div>
+                <div class="step-node" id="tracker-step-7">
+                    <span class="node-check">&#10003;</span>
+                    <span class="node-label">Database History</span>
+                </div>
+            </div>
+            <div class="tracker-progress-track">
+                <div class="tracker-progress-fill" id="tracker-fill"></div>
+            </div>
+        </nav>
+
+        <!-- Main Workspace Flow -->
+        <main class="pipeline-flow">
+
+            <!-- STEP 1: LOAD INPUT IMAGE -->
+            <section class="card-section" id="section-step-1">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon folder-icon">📁</span>
+                        <div>
+                            <h2>1. Load Input Image</h2>
+                            <p class="card-desc">Upload skin dermoscopy image or click an instant benchmark sample</p>
+                        </div>
+                    </div>
+                    <span class="status-badge" id="badge-step-1">WAITING</span>
+                </div>
+
+                <div class="card-body">
+                    <!-- Drag & Drop Zone -->
+                    <div class="drop-zone" id="drop-zone">
+                        <input type="file" id="file-input" accept="image/jpeg,image/png,image/jpg" hidden>
+                        <div class="drop-icon">🖼️</div>
+                        <h3>Click or Drag & Drop Dermoscopy Image Here</h3>
+                        <p class="drop-hint">Supports JPG, JPEG, PNG (Color Dermoscopic Skin Lesions)</p>
+                    </div>
+
+                    <!-- Instant Benchmark Samples -->
+                    <div class="benchmark-bar">
+                        <span class="benchmark-title">INSTANT DATASET BENCHMARK SAMPLES:</span>
+                        <div class="benchmark-buttons">
+                            <button class="sample-btn melanoma-btn" id="btn-sample-melanoma">
+                                <span class="dot red-dot"></span> Load Malignant Melanoma Sample
+                            </button>
+                            <button class="sample-btn benign-btn" id="btn-sample-benign">
+                                <span class="dot green-dot"></span> Load Benign Nevus Sample
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Input Image Preview Section (Hidden until selected) -->
+                    <div class="preview-container" id="input-preview-card" style="display: none;">
+                        <h4 class="subcard-title">INPUT IMAGE PREVIEW</h4>
+                        <div class="preview-img-wrapper">
+                            <img id="preview-raw-img" src="" alt="Selected Dermoscopy Image">
+                        </div>
+                        <div class="preview-meta-bar">
+                            <div class="meta-item"><span class="meta-label">FILE</span> <span class="meta-val" id="meta-filename">-</span></div>
+                            <div class="meta-item"><span class="meta-label">SIZE</span> <span class="meta-val" id="meta-size">-</span></div>
+                            <div class="meta-item"><span class="meta-label">RESOLUTION</span> <span class="meta-val" id="meta-res">-</span></div>
+                        </div>
+                        
+                        <button class="primary-action-btn" id="btn-process-classify">
+                            🚀 Process & Classify Image
+                        </button>
+                    </div>
+
+                    <!-- Alert Banner -->
+                    <div class="alert-banner success-alert" id="alert-step-1" style="display: none;">
+                        <span class="check-box-icon">☑</span> <span id="alert-step-1-text">Image loaded successfully. Ready to run pipeline...</span>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STEP 2: IMAGE PREPROCESSING -->
+            <section class="card-section" id="section-step-2">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon gear-icon">⚙️</span>
+                        <div>
+                            <h2>2. Image Preprocessing</h2>
+                            <p class="card-desc">DullRazor hair artifact removal &bull; Resize to 224&times;224 &bull; RGB conversion &bull; CLAHE contrast enhancement &bull; Normalization</p>
+                        </div>
+                    </div>
+                    <span class="status-badge" id="badge-step-2">PENDING</span>
+                </div>
+
+                <div class="card-body">
+                    <!-- Side-by-Side Image Comparison -->
+                    <div class="comparison-grid">
+                        <div class="comparison-col">
+                            <h4 class="subcard-title">1. ORIGINAL IMAGE</h4>
+                            <div class="comparison-img-box">
+                                <img id="prep-orig-img" src="" alt="Original Image">
+                            </div>
+                            <div class="comparison-meta-box">
+                                <span class="comp-label">ORIGINAL DIM</span>
+                                <span class="comp-val" id="prep-orig-dim">-</span>
+                            </div>
+                        </div>
+
+                        <div class="comparison-col">
+                            <h4 class="subcard-title">2. DULLRAZOR & CLAHE CONTRAST ENHANCED (224&times;224)</h4>
+                            <div class="comparison-img-box">
+                                <img id="prep-enhanced-img" src="" alt="Preprocessed Image">
+                            </div>
+                            <div class="comparison-meta-box flex-meta">
+                                <div><span class="comp-label">TARGET SIZE</span> <span class="comp-val highlight-green">224 &times; 224 px</span></div>
+                                <div><span class="comp-label">CONTRAST</span> <span class="comp-val highlight-green">CLAHE Enhanced &#10003;</span></div>
+                                <div><span class="comp-label">NORMALIZATION</span> <span class="comp-val highlight-green">[0, 1] Range &#10003;</span></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Preprocessing Checklist -->
+                    <div class="checklist-container">
+                        <div class="check-row" id="chk-1"><span class="check-tick">&#10003;</span> Image loaded &mdash; original dimensions verified</div>
+                        <div class="check-row" id="chk-2"><span class="check-tick">&#10003;</span> Converted to RGB colour space</div>
+                        <div class="check-row" id="chk-3"><span class="check-tick">&#10003;</span> DullRazor morphological black-hat hair artifact reduction applied</div>
+                        <div class="check-row" id="chk-4"><span class="check-tick">&#10003;</span> Resized to standardized 224&times;224 target geometry</div>
+                        <div class="check-row" id="chk-5"><span class="check-tick">&#10003;</span> Gaussian noise reduction applied (kernel 3&times;3)</div>
+                        <div class="check-row" id="chk-6"><span class="check-tick">&#10003;</span> CLAHE (Contrast Limited Adaptive Histogram Equalization) applied in LAB color space</div>
+                        <div class="check-row" id="chk-7"><span class="check-tick">&#10003;</span> Pixel intensities normalized to float32 [0.0, 1.0] range</div>
+                        <div class="check-row" id="chk-8"><span class="check-tick">&#10003;</span> Preprocessed visualization saved to disk cache</div>
+                    </div>
+
+                    <div class="alert-banner success-alert" id="alert-step-2" style="display: none;">
+                        <span class="check-box-icon">☑</span> Image successfully preprocessed with DullRazor artifact removal and CLAHE contrast enhancement.
+                    </div>
+                </div>
+            </section>
+
+            <!-- STEP 3: FEATURE EXTRACTION -->
+            <section class="card-section" id="section-step-3">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon flask-icon">🧪</span>
+                        <div>
+                            <h2>3. Feature Extraction</h2>
+                            <p class="card-desc">128-Dimensional hand-crafted color histograms, spatial gradients, and Sobel edge energy</p>
+                        </div>
+                    </div>
+                    <span class="status-badge" id="badge-step-3">PENDING</span>
+                </div>
+
+                <div class="card-body">
+                    <div class="feature-length-box">
+                        <span class="feat-len-label">EXTRACTED FEATURE VECTOR LENGTH</span>
+                        <span class="feat-len-val">128 Dimensions</span>
+                    </div>
+
+                    <h4 class="subcard-title mt-4">NUMERICAL FEATURE VECTOR SAMPLE:</h4>
+                    <div class="vector-sample-box" id="vector-sample-display">
+                        [0.3924, 0.4304, 0.4737, 0.1689, 0.1879, 1.0619, 0.1468, 0.1543, 1.0030, 0.4963, 0.0636, 0.0229, 0.0079, 0.0050, 0.0041, 0.0047, 0.0047, 0.0063, 0.0080, 0.0081, ...]
+                    </div>
+
+                    <h4 class="subcard-title mt-4">SPATIAL FEATURE VISUALIZATION:</h4>
+                    <div class="chart-container-box">
+                        <canvas id="feature-canvas" width="1000" height="180"></canvas>
+                        <div class="chart-axis-labels">
+                            <span>Color Histograms (R, G, B)</span>
+                            <span>Sobel Edge Energy</span>
+                            <span>Asymmetry Disparity</span>
+                            <span>Texture & Covariance</span>
+                        </div>
+                    </div>
+
+                    <div class="alert-banner success-alert" id="alert-step-3" style="display: none;">
+                        <span class="check-box-icon">☑</span> Extracted 128 feature descriptors.
+                    </div>
+                </div>
+            </section>
+
+            <!-- STEP 4: NEURAL NETWORK TRAINING -->
+            <section class="card-section" id="section-step-4">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon brain-icon">🧠</span>
+                        <div>
+                            <h2>4. Neural Network Training</h2>
+                            <p class="card-desc">Multi-Layer Perceptron (MLP) trained on Melanoma vs. Benign dermoscopy dataset</p>
+                        </div>
+                    </div>
+                    <span class="status-badge ready-badge" id="badge-step-4">TRAINED & READY</span>
+                </div>
+
+                <div class="card-body">
+                    <div class="model-status-box">
+                        <div class="status-line">
+                            <span class="check-box-icon">☑</span>
+                            <strong>Model is Fully Trained and Saved on Disk</strong>
+                        </div>
+                        <p class="status-subline">Trained on 15 Epochs with Adam Optimizer & L2 Regularization. Saved at <code>backend/models/melanoma_model.pkl</code>.</p>
+                    </div>
+
+                    <div class="train-actions-bar">
+                        <button class="purple-btn" id="btn-retrain">
+                            🔄 Retrain Neural Network
+                        </button>
+                        <button class="gray-btn" id="btn-view-curves">
+                            📈 View Accuracy & Loss Curves
+                        </button>
+                    </div>
+
+                    <div class="training-display-grid">
+                        <!-- Epoch Logs -->
+                        <div class="epoch-log-container">
+                            <div class="epoch-log-header">
+                                <span>Epoch 15 / 15</span>
+                                <div class="mini-progress-bar"><div class="mini-fill" style="width: 100%;"></div></div>
+                            </div>
+                            <div class="epoch-log-terminal" id="epoch-log-terminal">
+                                <div class="log-line">Epoch 1: Acc 50.0% | Loss 0.6842 | Val Acc 50.0%</div>
+                                <div class="log-line">Epoch 2: Acc 76.9% | Loss 0.6488 | Val Acc 72.2%</div>
+                                <div class="log-line">Epoch 3: Acc 71.2% | Loss 0.6176 | Val Acc 66.7%</div>
+                                <div class="log-line">Epoch 4: Acc 100.0% | Loss 0.5701 | Val Acc 100.0%</div>
+                                <div class="log-line">Epoch 5: Acc 94.2% | Loss 0.5312 | Val Acc 83.3%</div>
+                                <div class="log-line">Epoch 6: Acc 100.0% | Loss 0.4739 | Val Acc 100.0%</div>
+                                <div class="log-line">Epoch 7: Acc 98.1% | Loss 0.4181 | Val Acc 100.0%</div>
+                                <div class="log-line">Epoch 8: Acc 100.0% | Loss 0.3497 | Val Acc 100.0%</div>
+                                <div class="log-line">Epoch 9: Acc 100.0% | Loss 0.2881 | Val Acc 100.0%</div>
+                                <div class="log-line">Epoch 10: Acc 100.0% | Loss 0.2281 | Val Acc 100.0%</div>
+                                <div class="log-line">Epoch 11: Acc 100.0% | Loss 0.1739 | Val Acc 100.0%</div>
+                                <div class="log-line">Epoch 12: Acc 100.0% | Loss 0.1295 | Val Acc 100.0%</div>
+                                <div class="log-line">Epoch 13: Acc 100.0% | Loss 0.0906 | Val Acc 100.0%</div>
+                                <div class="log-line">Epoch 14: Acc 100.0% | Loss 0.0635 | Val Acc 100.0%</div>
+                                <div class="log-line highlight-log">Epoch 15: Acc 100.0% | Loss 0.0421 | Val Acc 100.0%</div>
+                            </div>
+                            <div class="alert-banner success-alert mt-3" id="alert-train-success">
+                                <span class="check-box-icon">☑</span> Training completed successfully! Model updated on disk.
+                            </div>
+                        </div>
+
+                        <!-- Curves Image Preview -->
+                        <div class="curves-preview-box">
+                            <img id="training-curves-img" src="/results/training_curves.png" alt="Training and Validation Accuracy and Loss Curves">
+                            <div class="curves-caption">Epoch Accuracy & Loss Curves</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STEP 5: CLASSIFICATION RESULT -->
+            <section class="card-section" id="section-step-5">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon target-icon">🎯</span>
+                        <div>
+                            <h2>5. Image Classification Result (Prediction)</h2>
+                            <p class="card-desc">Neural Network diagnostic decision with confidence probability</p>
+                        </div>
+                    </div>
+                    <span class="status-badge" id="badge-step-5">PENDING</span>
+                </div>
+
+                <div class="card-body">
+                    <!-- Dynamic Diagnostic Card -->
+                    <div class="diagnostic-card benign-style" id="diagnostic-card">
+                        <!-- Pulsing 3D Sphere Orb -->
+                        <div class="orb-container">
+                            <div class="glowing-orb" id="diagnostic-orb"></div>
+                        </div>
+
+                        <h2 class="diagnostic-headline" id="diagnostic-headline">NORMAL / BENIGN NEVUS (HEALTHY)</h2>
+                        <div class="confidence-tag">Confidence: <span id="diag-confidence">84.5%</span></div>
+
+                        <!-- Probability Breakdown Bars -->
+                        <div class="prob-container">
+                            <div class="prob-row">
+                                <span class="prob-name">Melanoma</span>
+                                <div class="prob-track">
+                                    <div class="prob-fill fill-red" id="prob-bar-melanoma" style="width: 15.5%;"></div>
+                                </div>
+                                <span class="prob-num" id="prob-num-melanoma">15.5%</span>
+                            </div>
+                            <div class="prob-row">
+                                <span class="prob-name">Benign</span>
+                                <div class="prob-track">
+                                    <div class="prob-fill fill-green" id="prob-bar-benign" style="width: 84.5%;"></div>
+                                </div>
+                                <span class="prob-num" id="prob-num-benign">84.5%</span>
+                            </div>
+                        </div>
+
+                        <!-- Clinical Advice Note -->
+                        <div class="clinical-note" id="clinical-note-box">
+                            <span class="note-icon" id="clinical-note-icon">&#9888;</span>
+                            <span id="clinical-note-text">Dermoscopic pigment network and lesion boundary are within standard benign physiological parameters.</span>
+                        </div>
+                    </div>
+
+                    <div class="alert-banner success-alert" id="alert-step-5" style="display: none;">
+                        <span class="check-box-icon">☑</span> Diagnosis completed: <span id="alert-pred-name">Benign</span> (<span id="alert-pred-conf">84.5%</span> confidence).
+                    </div>
+                </div>
+            </section>
+
+            <!-- STEP 6: PERFORMANCE EVALUATION METRICS -->
+            <section class="card-section" id="section-step-6">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon chart-icon">📊</span>
+                        <div>
+                            <h2>6. Performance Evaluation Metrics</h2>
+                            <p class="card-desc">Accuracy &bull; Precision &bull; Recall &bull; F1-Score &bull; Confusion Matrix on Unseen Test Dataset</p>
+                        </div>
+                    </div>
+                    <span class="status-badge evaluated-badge" id="badge-step-6">EVALUATED</span>
+                </div>
+
+                <div class="card-body">
+                    <!-- Metric Cards 4-Column Grid -->
+                    <div class="metrics-grid">
+                        <div class="metric-card">
+                            <div class="metric-icon">🎯</div>
+                            <div class="metric-title">ACCURACY</div>
+                            <div class="metric-val" id="metric-acc">100.00%</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">🔍</div>
+                            <div class="metric-title">PRECISION</div>
+                            <div class="metric-val highlight-cyan" id="metric-prec">100.00%</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">📡</div>
+                            <div class="metric-title">RECALL</div>
+                            <div class="metric-val highlight-blue" id="metric-rec">100.00%</div>
+                        </div>
+                        <div class="metric-card">
+                            <div class="metric-icon">⚖️</div>
+                            <div class="metric-title">F1-SCORE</div>
+                            <div class="metric-val highlight-purple" id="metric-f1">100.00%</div>
+                        </div>
+                    </div>
+
+                    <div class="eval-btn-bar">
+                        <button class="amber-btn" id="btn-reevaluate">
+                            📊 Re-evaluate Model on Test Set
+                        </button>
+                    </div>
+
+                    <!-- Confusion Matrix Display -->
+                    <div class="cm-section">
+                        <h4 class="subcard-title">CONFUSION MATRIX HEATMAP</h4>
+                        <div class="cm-img-wrapper">
+                            <img id="cm-image" src="/results/confusion_matrix.png" alt="Confusion Matrix Heatmap">
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- STEP 7: PREDICTION HISTORY DATABASE -->
+            <section class="card-section" id="section-step-7">
+                <div class="card-header">
+                    <div class="card-title-group">
+                        <span class="card-icon db-icon">🗄️</span>
+                        <div>
+                            <h2>7. Prediction History & Diagnostic Database</h2>
+                            <p class="card-desc">Stored classifications persisted in SQLite database (<code>database/melanoma.db</code>)</p>
+                        </div>
+                    </div>
+                    <div class="history-actions">
+                        <button class="table-btn refresh-btn" id="btn-refresh-history">🔄 Refresh</button>
+                        <button class="table-btn clear-btn" id="btn-clear-history">🗑️ Clear History</button>
+                    </div>
+                </div>
+
+                <div class="card-body">
+                    <div class="table-responsive">
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>FILENAME</th>
+                                    <th>PREDICTION</th>
+                                    <th>CONFIDENCE</th>
+                                    <th>DATE & TIME</th>
+                                </tr>
+                            </thead>
+                            <tbody id="history-table-body">
+                                <tr>
+                                    <td colspan="4" class="empty-table-msg">Loading history from database...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+        </main>
+
+        <!-- Footer -->
+        <footer class="main-footer">
+            Melanoma Skin Lesion Classification using Neural Network &bull; Python Flask, Scikit-Learn MLP & SQLite
+        </footer>
+
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
